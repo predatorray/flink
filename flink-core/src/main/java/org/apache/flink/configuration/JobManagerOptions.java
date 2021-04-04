@@ -389,6 +389,43 @@ public class JobManagerOptions {
                     .withDescription(
                             "Controls whether partitions should already be released during the job execution.");
 
+    /**
+     * An optional list of job status listener names. If configured, only listeners whose name
+     * matches any of the names in the list will be started. Otherwise, all reporters that could be
+     * found in the configuration will be started.
+     *
+     * <p>Example:
+     *
+     * <pre>{@code
+     * jobmanager.job-status-listeners = foo,bar
+     *
+     * jobmanager.job-status-listener.foo.class = com.example.flink.MyCustomJobStatusListener
+     * jobmanager.job-status-listener.foo.connection = http://example.com:8080/status
+     *
+     * jobmanager.job-status-listener.bar.class = com.example.flink.MyCustomJobStatusListener
+     * jobmanager.job-status-listener.bar.key1 = value1
+     * jobmanager.job-status-listener.bar.key2 = value2
+     * }</pre>
+     */
+    public static final ConfigOption<String> JOB_LISTENERS_LIST =
+            key("jobmanager.job-status-listeners")
+                    .noDefaultValue()
+                    .withDescription(
+                            "An optional list of custom job status listener names. If configured, only listeners whose name matches"
+                                    + " any of the names in the list will be started. Otherwise, all listeners that could be found in"
+                                    + " the configuration will be started.");
+
+    public static final ConfigOption<String> JOB_LISTENER_CLASS =
+            key("jobmanager.job-status-listener.<name>.class")
+                    .noDefaultValue()
+                    .withDescription("The listener class to use for the listener named <name>.");
+
+    public static final ConfigOption<String> JOB_LISTENER_CONFIG_PARAMETER =
+            key("jobmanager.job-status-listener.<name>.<parameter>")
+                    .noDefaultValue()
+                    .withDescription(
+                            "Configures the parameter <parameter> for the listener named <name>.");
+
     // ---------------------------------------------------------------------------------------------
 
     private JobManagerOptions() {

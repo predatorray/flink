@@ -20,9 +20,26 @@ package org.apache.flink.runtime.executiongraph;
 
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
+import org.apache.flink.configuration.Configuration;
 
 /** Interface for observers that monitor the status of a job. */
 public interface JobStatusListener {
+
+    /**
+     * Configures this listener.
+     *
+     * <p>If the listener was instantiated generically and hence parameter-less, this method is the
+     * place where the listener sets it's basic fields based on configuration values. Otherwise,
+     * this method will typically be a no-op since resources can be acquired in the constructor.
+     *
+     * <p>This method is always called first on a newly instantiated listener.
+     *
+     * @param config The configuration for this reporter.
+     */
+    void open(Configuration config);
+
+    /** Closes this listener. Should be used to close channels, streams and release resources. */
+    void close();
 
     /**
      * This method is called whenever the status of the job changes.

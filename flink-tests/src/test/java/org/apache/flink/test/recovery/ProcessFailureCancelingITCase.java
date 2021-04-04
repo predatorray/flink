@@ -48,6 +48,7 @@ import org.apache.flink.runtime.entrypoint.component.DispatcherResourceManagerCo
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServicesUtils;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.metrics.NoOpMetricRegistry;
 import org.apache.flink.runtime.resourcemanager.StandaloneResourceManagerFactory;
 import org.apache.flink.runtime.rpc.RpcService;
@@ -73,6 +74,7 @@ import org.junit.rules.TemporaryFolder;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -161,6 +163,7 @@ public class ProcessFailureCancelingITCase extends TestLogger {
                             NoOpMetricRegistry.INSTANCE,
                             new MemoryArchivedExecutionGraphStore(),
                             VoidMetricQueryServiceRetriever.INSTANCE,
+                            new CustomJobStatusListeners(Collections.emptyList()),
                             fatalErrorHandler);
 
             final Map<String, String> keyValues = config.toMap();

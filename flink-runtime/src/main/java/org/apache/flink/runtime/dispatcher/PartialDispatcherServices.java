@@ -22,6 +22,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.blob.BlobServer;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.resourcemanager.ResourceManagerGateway;
 import org.apache.flink.runtime.rpc.FatalErrorHandler;
 import org.apache.flink.runtime.webmonitor.retriever.GatewayRetriever;
@@ -57,6 +58,8 @@ public class PartialDispatcherServices {
 
     @Nullable private final String metricQueryServiceAddress;
 
+    @Nonnull private final CustomJobStatusListeners customJobStatusListeners;
+
     @Nonnull private final Executor ioExecutor;
 
     public PartialDispatcherServices(
@@ -70,6 +73,7 @@ public class PartialDispatcherServices {
             @Nonnull FatalErrorHandler fatalErrorHandler,
             @Nonnull HistoryServerArchivist historyServerArchivist,
             @Nullable String metricQueryServiceAddress,
+            @Nonnull CustomJobStatusListeners customJobStatusListeners,
             @Nonnull Executor ioExecutor) {
         this.configuration = configuration;
         this.highAvailabilityServices = highAvailabilityServices;
@@ -81,6 +85,7 @@ public class PartialDispatcherServices {
         this.fatalErrorHandler = fatalErrorHandler;
         this.historyServerArchivist = historyServerArchivist;
         this.metricQueryServiceAddress = metricQueryServiceAddress;
+        this.customJobStatusListeners = customJobStatusListeners;
         this.ioExecutor = ioExecutor;
     }
 
@@ -132,6 +137,11 @@ public class PartialDispatcherServices {
     @Nullable
     public String getMetricQueryServiceAddress() {
         return metricQueryServiceAddress;
+    }
+
+    @Nonnull
+    public CustomJobStatusListeners getCustomJobStatusListeners() {
+        return customJobStatusListeners;
     }
 
     @Nonnull

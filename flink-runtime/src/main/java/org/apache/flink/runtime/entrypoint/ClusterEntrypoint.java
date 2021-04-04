@@ -45,6 +45,8 @@ import org.apache.flink.runtime.entrypoint.parser.CommandLineParser;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServicesUtils;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
+import org.apache.flink.runtime.jobmaster.JobStatusListenerSetup;
 import org.apache.flink.runtime.management.JMXService;
 import org.apache.flink.runtime.metrics.MetricRegistryConfiguration;
 import org.apache.flink.runtime.metrics.MetricRegistryImpl;
@@ -144,6 +146,9 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
     @GuardedBy("lock")
     private ExecutorService ioExecutor;
 
+    @GuardedBy("lock")
+    private CustomJobStatusListeners customJobStatusListeners;
+
     private ArchivedExecutionGraphStore archivedExecutionGraphStore;
 
     private final Thread shutDownHook;
@@ -242,6 +247,7 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
                             archivedExecutionGraphStore,
                             new RpcMetricQueryServiceRetriever(
                                     metricRegistry.getMetricQueryServiceRpcService()),
+                            customJobStatusListeners,
                             this);
 
             clusterComponent
@@ -292,6 +298,7 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
             blobServer.start();
             heartbeatServices = createHeartbeatServices(configuration);
             metricRegistry = createMetricRegistry(configuration, pluginManager);
+            customJobStatusListeners = createCustomJobStatusListeners(configuration, pluginManager);
 
             final RpcService metricQueryServiceRpcService =
                     MetricUtils.startRemoteMetricsRpcService(
@@ -346,6 +353,12 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
                 ReporterSetup.fromConfiguration(configuration, pluginManager));
     }
 
+    protected CustomJobStatusListeners createCustomJobStatusListeners(
+            Configuration configuration, PluginManager pluginManager) {
+        return new CustomJobStatusListeners(
+                JobStatusListenerSetup.fromConfiguration(configuration, pluginManager));
+    }
+
     @Override
     public CompletableFuture<Void> closeAsync() {
         return shutDownAsync(
@@ -398,6 +411,10 @@ public abstract class ClusterEntrypoint implements AutoCloseableAsync, FatalErro
 
             if (metricRegistry != null) {
                 terminationFutures.add(metricRegistry.shutdown());
+            }
+
+            if (customJobStatusListeners != null) {
+                customJobStatusListeners.shutdown();
             }
 
             if (ioExecutor != null) {

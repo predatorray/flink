@@ -41,6 +41,7 @@ import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobmanager.JobGraphStore;
 import org.apache.flink.runtime.jobmanager.JobGraphStoreFactory;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobResult;
 import org.apache.flink.runtime.leaderelection.TestingLeaderElectionService;
 import org.apache.flink.runtime.metrics.groups.UnregisteredMetricGroups;
@@ -69,6 +70,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
@@ -103,6 +105,8 @@ public class ZooKeeperDefaultDispatcherRunnerTest extends TestLogger {
 
     private Configuration configuration;
 
+    private CustomJobStatusListeners customJobStatusListeners;
+
     @Before
     public void setup() throws IOException {
         fatalErrorHandler = new TestingFatalErrorHandler();
@@ -121,6 +125,8 @@ public class ZooKeeperDefaultDispatcherRunnerTest extends TestLogger {
                                 .toString());
         blobServer =
                 new BlobServer(configuration, BlobUtils.createBlobStoreFromConfig(configuration));
+
+        customJobStatusListeners = new CustomJobStatusListeners(Collections.emptyList());
     }
 
     @After
@@ -165,6 +171,7 @@ public class ZooKeeperDefaultDispatcherRunnerTest extends TestLogger {
                             fatalErrorHandler,
                             VoidHistoryServerArchivist.INSTANCE,
                             null,
+                            customJobStatusListeners,
                             ForkJoinPool.commonPool());
 
             final JobGraph jobGraph = createJobGraphWithBlobs();

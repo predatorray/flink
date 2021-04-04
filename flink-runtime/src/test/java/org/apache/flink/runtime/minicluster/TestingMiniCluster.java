@@ -26,6 +26,7 @@ import org.apache.flink.runtime.entrypoint.component.DispatcherResourceManagerCo
 import org.apache.flink.runtime.entrypoint.component.DispatcherResourceManagerComponentFactory;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.metrics.MetricRegistry;
 import org.apache.flink.runtime.rpc.FatalErrorHandler;
 import org.apache.flink.runtime.webmonitor.retriever.MetricQueryServiceRetriever;
@@ -87,6 +88,7 @@ public class TestingMiniCluster extends MiniCluster {
                     HeartbeatServices heartbeatServices,
                     MetricRegistry metricRegistry,
                     MetricQueryServiceRetriever metricQueryServiceRetriever,
+                    CustomJobStatusListeners customJobStatusListeners,
                     FatalErrorHandler fatalErrorHandler)
                     throws Exception {
         DispatcherResourceManagerComponentFactory dispatcherResourceManagerComponentFactory =
@@ -107,6 +109,7 @@ public class TestingMiniCluster extends MiniCluster {
                             metricRegistry,
                             new MemoryArchivedExecutionGraphStore(),
                             metricQueryServiceRetriever,
+                            customJobStatusListeners,
                             fatalErrorHandler));
         }
 

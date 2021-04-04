@@ -58,7 +58,9 @@ import org.apache.flink.runtime.highavailability.nonha.embedded.EmbeddedHaServic
 import org.apache.flink.runtime.highavailability.nonha.embedded.HaLeadershipControl;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.OperatorID;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobResult;
+import org.apache.flink.runtime.jobmaster.JobStatusListenerSetup;
 import org.apache.flink.runtime.leaderretrieval.LeaderRetrievalService;
 import org.apache.flink.runtime.messages.Acknowledge;
 import org.apache.flink.runtime.messages.webmonitor.ClusterOverview;
@@ -195,6 +197,9 @@ public class MiniCluster implements AutoCloseableAsync {
     @GuardedBy("lock")
     private RpcServiceFactory taskManagerRpcServiceFactory;
 
+    @GuardedBy("lock")
+    private CustomJobStatusListeners customJobStatusListeners;
+
     /** Flag marking the mini cluster as started/running. */
     private volatile boolean running;
 
@@ -276,6 +281,7 @@ public class MiniCluster implements AutoCloseableAsync {
 
                 LOG.info("Starting Metrics Registry");
                 metricRegistry = createMetricRegistry(configuration);
+                customJobStatusListeners = createCustomJobStatusListeners(configuration);
 
                 // bring up all the RPC services
                 LOG.info("Starting RPC Service(s)");
@@ -427,6 +433,7 @@ public class MiniCluster implements AutoCloseableAsync {
                         heartbeatServices,
                         metricRegistry,
                         metricQueryServiceRetriever,
+                        customJobStatusListeners,
                         new ShutDownFatalErrorHandler()));
 
         final Collection<CompletableFuture<ApplicationStatus>> shutDownFutures =
@@ -455,6 +462,7 @@ public class MiniCluster implements AutoCloseableAsync {
                     HeartbeatServices heartbeatServices,
                     MetricRegistry metricRegistry,
                     MetricQueryServiceRetriever metricQueryServiceRetriever,
+                    CustomJobStatusListeners customJobStatusListeners,
                     FatalErrorHandler fatalErrorHandler)
                     throws Exception {
         DispatcherResourceManagerComponentFactory dispatcherResourceManagerComponentFactory =
@@ -470,6 +478,7 @@ public class MiniCluster implements AutoCloseableAsync {
                         metricRegistry,
                         new MemoryArchivedExecutionGraphStore(),
                         metricQueryServiceRetriever,
+                        customJobStatusListeners,
                         fatalErrorHandler));
     }
 
@@ -900,6 +909,10 @@ public class MiniCluster implements AutoCloseableAsync {
                 ReporterSetup.fromConfiguration(config, null));
     }
 
+    protected CustomJobStatusListeners createCustomJobStatusListeners(Configuration config) {
+        return new CustomJobStatusListeners(JobStatusListenerSetup.fromConfiguration(config, null));
+    }
+
     /**
      * Factory method to instantiate the remote RPC service.
      *
@@ -1004,6 +1017,14 @@ public class MiniCluster implements AutoCloseableAsync {
                             }
 
                             clusterRestEndpointLeaderRetrievalService = null;
+                        }
+
+                        if (customJobStatusListeners != null) {
+                            try {
+                                customJobStatusListeners.shutdown();
+                            } catch (Exception e) {
+                                exception = ExceptionUtils.firstOrSuppressed(e, exception);
+                            }
                         }
                     }
 

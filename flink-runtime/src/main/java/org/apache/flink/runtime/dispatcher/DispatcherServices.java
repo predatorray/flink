@@ -23,6 +23,7 @@ import org.apache.flink.runtime.blob.BlobServer;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
 import org.apache.flink.runtime.jobmanager.JobGraphWriter;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.metrics.groups.JobManagerMetricGroup;
 import org.apache.flink.runtime.resourcemanager.ResourceManagerGateway;
 import org.apache.flink.runtime.rpc.FatalErrorHandler;
@@ -60,6 +61,8 @@ public class DispatcherServices {
 
     @Nonnull private final JobManagerRunnerFactory jobManagerRunnerFactory;
 
+    @Nonnull private final CustomJobStatusListeners customJobStatusListeners;
+
     @Nonnull private final Executor ioExecutor;
 
     public DispatcherServices(
@@ -75,6 +78,7 @@ public class DispatcherServices {
             @Nonnull JobManagerMetricGroup jobManagerMetricGroup,
             @Nonnull JobGraphWriter jobGraphWriter,
             @Nonnull JobManagerRunnerFactory jobManagerRunnerFactory,
+            @Nonnull CustomJobStatusListeners customJobStatusListeners,
             @Nonnull Executor ioExecutor) {
         this.configuration = configuration;
         this.highAvailabilityServices = highAvailabilityServices;
@@ -88,6 +92,7 @@ public class DispatcherServices {
         this.jobManagerMetricGroup = jobManagerMetricGroup;
         this.jobGraphWriter = jobGraphWriter;
         this.jobManagerRunnerFactory = jobManagerRunnerFactory;
+        this.customJobStatusListeners = customJobStatusListeners;
         this.ioExecutor = ioExecutor;
     }
 
@@ -152,6 +157,11 @@ public class DispatcherServices {
     }
 
     @Nonnull
+    public CustomJobStatusListeners getCustomJobStatusListeners() {
+        return customJobStatusListeners;
+    }
+
+    @Nonnull
     public Executor getIoExecutor() {
         return ioExecutor;
     }
@@ -176,6 +186,7 @@ public class DispatcherServices {
                         .create(),
                 partialDispatcherServicesWithJobGraphStore.getJobGraphWriter(),
                 jobManagerRunnerFactory,
+                partialDispatcherServicesWithJobGraphStore.getCustomJobStatusListeners(),
                 partialDispatcherServicesWithJobGraphStore.getIoExecutor());
     }
 }

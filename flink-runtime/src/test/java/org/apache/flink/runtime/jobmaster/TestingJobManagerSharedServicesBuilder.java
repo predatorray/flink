@@ -27,6 +27,7 @@ import org.apache.flink.runtime.rest.handler.legacy.backpressure.BackPressureSta
 import org.apache.flink.runtime.rest.handler.legacy.backpressure.VoidBackPressureStatsTracker;
 import org.apache.flink.runtime.testingUtils.TestingUtils;
 
+import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 
 /** Builder for the {@link JobManagerSharedServices}. */
@@ -42,12 +43,15 @@ public class TestingJobManagerSharedServicesBuilder {
 
     private BlobWriter blobWriter;
 
+    private CustomJobStatusListeners customJobStatusListeners;
+
     public TestingJobManagerSharedServicesBuilder() {
         scheduledExecutorService = TestingUtils.defaultExecutor();
         libraryCacheManager = ContextClassLoaderLibraryCacheManager.INSTANCE;
         backPressureSampleCoordinator = new BackPressureRequestCoordinator(Runnable::run, 10000);
         backPressureStatsTracker = VoidBackPressureStatsTracker.INSTANCE;
         blobWriter = VoidBlobWriter.getInstance();
+        customJobStatusListeners = new CustomJobStatusListeners(Collections.emptyList());
     }
 
     public TestingJobManagerSharedServicesBuilder setScheduledExecutorService(
@@ -84,6 +88,7 @@ public class TestingJobManagerSharedServicesBuilder {
                 libraryCacheManager,
                 backPressureSampleCoordinator,
                 backPressureStatsTracker,
-                blobWriter);
+                blobWriter,
+                customJobStatusListeners);
     }
 }

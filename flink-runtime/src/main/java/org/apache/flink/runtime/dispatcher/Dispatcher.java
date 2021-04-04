@@ -43,6 +43,7 @@ import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.JobVertexID;
 import org.apache.flink.runtime.jobgraph.OperatorID;
 import org.apache.flink.runtime.jobmanager.JobGraphWriter;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobManagerRunner;
 import org.apache.flink.runtime.jobmaster.JobManagerSharedServices;
 import org.apache.flink.runtime.jobmaster.JobMasterGateway;
@@ -169,9 +170,12 @@ public abstract class Dispatcher extends PermanentlyFencedRpcEndpoint<Dispatcher
         this.metricServiceQueryAddress = dispatcherServices.getMetricQueryServiceAddress();
         this.ioExecutor = dispatcherServices.getIoExecutor();
 
+        CustomJobStatusListeners customJobStatusListeners =
+                dispatcherServices.getCustomJobStatusListeners();
+
         this.jobManagerSharedServices =
                 JobManagerSharedServices.fromConfiguration(
-                        configuration, blobServer, fatalErrorHandler);
+                        configuration, blobServer, customJobStatusListeners, fatalErrorHandler);
 
         this.runningJobsRegistry = highAvailabilityServices.getRunningJobsRegistry();
 

@@ -151,6 +151,21 @@ public final class ConfigConstants {
     @Deprecated public static final String JOB_MANAGER_IPC_PORT_KEY = "jobmanager.rpc.port";
 
     /**
+     * The prefix for per- job status listener configs. Has to be combined with a listener name and
+     * the configs mentioned below.
+     */
+    public static final String JOB_STATUS_LISTENER_PREFIX = "jobmanager.job-status-listener.";
+
+    /** The class of the reporter to use. This is used as a suffix in an actual reporter config */
+    public static final String JOB_STATUS_LISTENER_CLASS_SUFFIX = "class";
+
+    /**
+     * The class of the job status listener factory to use. This is used as a suffix in an actual
+     * listener config
+     */
+    public static final String JOB_STATUS_LISTENER_FACTORY_CLASS_SUFFIX = "factory.class";
+
+    /**
      * The config parameter defining the network port to connect to for communication with the
      * resource manager.
      *

@@ -23,6 +23,7 @@ import org.apache.flink.runtime.blob.BlobServer;
 import org.apache.flink.runtime.dispatcher.ArchivedExecutionGraphStore;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.metrics.MetricRegistry;
 import org.apache.flink.runtime.rpc.FatalErrorHandler;
 import org.apache.flink.runtime.rpc.RpcService;
@@ -43,6 +44,7 @@ public interface DispatcherResourceManagerComponentFactory {
             MetricRegistry metricRegistry,
             ArchivedExecutionGraphStore archivedExecutionGraphStore,
             MetricQueryServiceRetriever metricQueryServiceRetriever,
+            CustomJobStatusListeners customJobStatusListeners,
             FatalErrorHandler fatalErrorHandler)
             throws Exception;
 }

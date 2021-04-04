@@ -20,6 +20,7 @@ package org.apache.flink.runtime.checkpoint;
 
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.executiongraph.JobStatusListener;
 
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -35,6 +36,12 @@ public class CheckpointCoordinatorDeActivator implements JobStatusListener {
     public CheckpointCoordinatorDeActivator(CheckpointCoordinator coordinator) {
         this.coordinator = checkNotNull(coordinator);
     }
+
+    @Override
+    public void open(Configuration config) {}
+
+    @Override
+    public void close() {}
 
     @Override
     public void jobStatusChanges(

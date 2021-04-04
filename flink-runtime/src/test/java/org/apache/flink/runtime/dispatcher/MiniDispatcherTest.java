@@ -31,6 +31,7 @@ import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.TestingHighAvailabilityServices;
 import org.apache.flink.runtime.highavailability.TestingHighAvailabilityServicesBuilder;
 import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobResult;
 import org.apache.flink.runtime.jobmaster.TestingJobManagerRunner;
 import org.apache.flink.runtime.metrics.groups.UnregisteredMetricGroups;
@@ -52,6 +53,7 @@ import org.junit.rules.TemporaryFolder;
 import javax.annotation.Nonnull;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -94,6 +96,8 @@ public class MiniDispatcherTest extends TestLogger {
 
     private TestingJobManagerRunnerFactory testingJobManagerRunnerFactory;
 
+    private CustomJobStatusListeners customJobStatusListeners;
+
     @BeforeClass
     public static void setupClass() throws IOException {
         jobGraph = new JobGraph();
@@ -118,6 +122,8 @@ public class MiniDispatcherTest extends TestLogger {
         highAvailabilityServices = new TestingHighAvailabilityServicesBuilder().build();
 
         testingJobManagerRunnerFactory = new TestingJobManagerRunnerFactory();
+
+        customJobStatusListeners = new CustomJobStatusListeners(Collections.emptyList());
     }
 
     @AfterClass
@@ -263,6 +269,7 @@ public class MiniDispatcherTest extends TestLogger {
                         UnregisteredMetricGroups.createUnregisteredJobManagerMetricGroup(),
                         highAvailabilityServices.getJobGraphStore(),
                         testingJobManagerRunnerFactory,
+                        customJobStatusListeners,
                         ForkJoinPool.commonPool()),
                 jobGraph,
                 (dispatcher, scheduledExecutor, errorHandler) -> new NoOpDispatcherBootstrap(),

@@ -21,6 +21,7 @@ package org.apache.flink.runtime.scheduler;
 import org.apache.flink.api.common.JobID;
 import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.time.Time;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.clusterframework.types.ResourceProfile;
 import org.apache.flink.runtime.concurrent.ComponentMainThreadExecutor;
 import org.apache.flink.runtime.concurrent.ComponentMainThreadExecutorServiceAdapter;
@@ -209,6 +210,12 @@ public class DefaultSchedulerBatchSchedulingTest extends TestLogger {
 
         private final CompletableFuture<JobStatus> globallyTerminalJobStatusFuture =
                 new CompletableFuture<>();
+
+        @Override
+        public void open(Configuration config) {}
+
+        @Override
+        public void close() {}
 
         @Override
         public void jobStatusChanges(

@@ -40,6 +40,7 @@ import org.apache.flink.runtime.highavailability.TestingHighAvailabilityServices
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobmanager.JobGraphWriter;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobManagerRunner;
 import org.apache.flink.runtime.jobmaster.JobManagerSharedServices;
 import org.apache.flink.runtime.jobmaster.JobNotFinishedException;
@@ -128,6 +129,8 @@ public class DispatcherResourceCleanupTest extends TestLogger {
 
     private File blobFile;
 
+    private CustomJobStatusListeners customJobStatusListeners;
+
     private CompletableFuture<BlobKey> storedHABlobFuture;
     private CompletableFuture<JobID> deleteAllHABlobsFuture;
     private CompletableFuture<JobID> cleanupJobFuture;
@@ -165,6 +168,8 @@ public class DispatcherResourceCleanupTest extends TestLogger {
                         .createTestingBlobStore();
 
         cleanupJobFuture = new CompletableFuture<>();
+
+        customJobStatusListeners = new CustomJobStatusListeners(Collections.emptyList());
 
         blobServer = new TestingBlobServer(configuration, testingBlobStore, cleanupJobFuture);
 
@@ -218,6 +223,7 @@ public class DispatcherResourceCleanupTest extends TestLogger {
                                 UnregisteredMetricGroups.createUnregisteredJobManagerMetricGroup(),
                                 jobGraphWriter,
                                 jobManagerRunnerFactory,
+                                customJobStatusListeners,
                                 ForkJoinPool.commonPool()));
 
         dispatcher.start();

@@ -59,6 +59,8 @@ public class JobManagerSharedServices {
 
     private final BackPressureStatsTracker backPressureStatsTracker;
 
+    private final CustomJobStatusListeners customJobStatusListeners;
+
     @Nonnull private final BlobWriter blobWriter;
 
     public JobManagerSharedServices(
@@ -66,13 +68,15 @@ public class JobManagerSharedServices {
             LibraryCacheManager libraryCacheManager,
             BackPressureRequestCoordinator backPressureSampleCoordinator,
             BackPressureStatsTracker backPressureStatsTracker,
-            @Nonnull BlobWriter blobWriter) {
+            @Nonnull BlobWriter blobWriter,
+            CustomJobStatusListeners customJobStatusListeners) {
 
         this.scheduledExecutorService = checkNotNull(scheduledExecutorService);
         this.libraryCacheManager = checkNotNull(libraryCacheManager);
         this.backPressureSampleCoordinator = checkNotNull(backPressureSampleCoordinator);
         this.backPressureStatsTracker = checkNotNull(backPressureStatsTracker);
         this.blobWriter = blobWriter;
+        this.customJobStatusListeners = customJobStatusListeners;
     }
 
     public ScheduledExecutorService getScheduledExecutorService() {
@@ -90,6 +94,10 @@ public class JobManagerSharedServices {
     @Nonnull
     public BlobWriter getBlobWriter() {
         return blobWriter;
+    }
+
+    public CustomJobStatusListeners getCustomJobStatusListeners() {
+        return customJobStatusListeners;
     }
 
     /**
@@ -125,7 +133,10 @@ public class JobManagerSharedServices {
     // ------------------------------------------------------------------------
 
     public static JobManagerSharedServices fromConfiguration(
-            Configuration config, BlobServer blobServer, FatalErrorHandler fatalErrorHandler) {
+            Configuration config,
+            BlobServer blobServer,
+            CustomJobStatusListeners customJobStatusListeners,
+            FatalErrorHandler fatalErrorHandler) {
 
         checkNotNull(config);
         checkNotNull(blobServer);
@@ -186,6 +197,7 @@ public class JobManagerSharedServices {
                 libraryCacheManager,
                 coordinator,
                 backPressureStatsTracker,
-                blobServer);
+                blobServer,
+                customJobStatusListeners);
     }
 }

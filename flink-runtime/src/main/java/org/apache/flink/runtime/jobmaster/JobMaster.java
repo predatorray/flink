@@ -23,6 +23,7 @@ import org.apache.flink.api.common.JobStatus;
 import org.apache.flink.api.common.functions.AggregateFunction;
 import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.queryablestate.KvStateID;
 import org.apache.flink.runtime.accumulators.AccumulatorSnapshot;
@@ -209,6 +210,8 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId>
     private final ExecutionDeploymentTracker executionDeploymentTracker;
     private final ExecutionDeploymentReconciler executionDeploymentReconciler;
 
+    private final CustomJobStatusListeners customJobStatusListeners;
+
     // ------------------------------------------------------------------------
 
     public JobMaster(
@@ -284,6 +287,7 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId>
         this.highAvailabilityServices = checkNotNull(highAvailabilityService);
         this.blobWriter = jobManagerSharedServices.getBlobWriter();
         this.scheduledExecutorService = jobManagerSharedServices.getScheduledExecutorService();
+        this.customJobStatusListeners = jobManagerSharedServices.getCustomJobStatusListeners();
         this.jobCompletionActions = checkNotNull(jobCompletionActions);
         this.fatalErrorHandler = checkNotNull(fatalErrorHandler);
         this.userCodeLoader = checkNotNull(userCodeLoader);
@@ -1051,6 +1055,8 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId>
         jobStatusListener = new JobManagerJobStatusListener();
         schedulerNG.registerJobStatusListener(jobStatusListener);
 
+        customJobStatusListeners.register(schedulerNG);
+
         schedulerNG.startScheduling();
     }
 
@@ -1381,6 +1387,12 @@ public class JobMaster extends FencedRpcEndpoint<JobMasterId>
     private class JobManagerJobStatusListener implements JobStatusListener {
 
         private volatile boolean running = true;
+
+        @Override
+        public void open(Configuration config) {}
+
+        @Override
+        public void close() {}
 
         @Override
         public void jobStatusChanges(

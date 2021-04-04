@@ -38,6 +38,7 @@ import org.apache.flink.runtime.entrypoint.ClusterInformation;
 import org.apache.flink.runtime.heartbeat.HeartbeatServices;
 import org.apache.flink.runtime.highavailability.HighAvailabilityServices;
 import org.apache.flink.runtime.jobmanager.HaServicesJobGraphStoreFactory;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.leaderretrieval.LeaderRetrievalService;
 import org.apache.flink.runtime.metrics.MetricRegistry;
 import org.apache.flink.runtime.metrics.util.MetricUtils;
@@ -108,6 +109,7 @@ public class DefaultDispatcherResourceManagerComponentFactory
             MetricRegistry metricRegistry,
             ArchivedExecutionGraphStore archivedExecutionGraphStore,
             MetricQueryServiceRetriever metricQueryServiceRetriever,
+            CustomJobStatusListeners customJobStatusListeners,
             FatalErrorHandler fatalErrorHandler)
             throws Exception {
 
@@ -205,6 +207,7 @@ public class DefaultDispatcherResourceManagerComponentFactory
                             fatalErrorHandler,
                             historyServerArchivist,
                             metricRegistry.getMetricQueryServiceGatewayRpcAddress(),
+                            customJobStatusListeners,
                             ioExecutor);
 
             log.debug("Starting Dispatcher.");

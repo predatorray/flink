@@ -43,6 +43,7 @@ import org.apache.flink.runtime.highavailability.TestingHighAvailabilityServices
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobmanager.JobGraphWriter;
+import org.apache.flink.runtime.jobmaster.CustomJobStatusListeners;
 import org.apache.flink.runtime.jobmaster.JobManagerRunner;
 import org.apache.flink.runtime.jobmaster.JobManagerSharedServices;
 import org.apache.flink.runtime.jobmaster.JobNotFinishedException;
@@ -157,6 +158,8 @@ public class DispatcherTest extends TestLogger {
 
     private HeartbeatServices heartbeatServices;
 
+    private CustomJobStatusListeners customJobStatusListeners;
+
     @BeforeClass
     public static void setupClass() {
         rpcService = new TestingRpcService();
@@ -193,6 +196,8 @@ public class DispatcherTest extends TestLogger {
 
         createdJobManagerRunnerLatch = new CountDownLatch(2);
         blobServer = new BlobServer(configuration, new VoidBlobStore());
+
+        customJobStatusListeners = new CustomJobStatusListeners(Collections.emptyList());
     }
 
     @Nonnull
@@ -286,6 +291,7 @@ public class DispatcherTest extends TestLogger {
                             UnregisteredMetricGroups.createUnregisteredJobManagerMetricGroup(),
                             jobGraphWriter,
                             jobManagerRunnerFactory,
+                            customJobStatusListeners,
                             ForkJoinPool.commonPool()));
         }
     }
